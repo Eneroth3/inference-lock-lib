@@ -26,7 +26,7 @@ module ToolInference
     when VK_UP
       lock_inference_axis([start_ip.position, view.model.axes.zaxis], view)
     end
-
+    update_ip(view)
     view.invalidate
   end
 
@@ -38,6 +38,7 @@ module ToolInference
     return if @axis_lock
 
     view.lock_inference
+    update_ip(view)
     view.invalidate
   end
 
@@ -52,6 +53,21 @@ module ToolInference
     # Native line tool no longer has axis inference until after the
     # starting point is set, since SketchUp 2017 or so.
     true
+  end
+
+  # Pick InputPoint.
+  #
+  # This method MUST be overridden with a method in your tool class.
+  # Typically onMouseMove stores the screen x and y coordinates and calls this
+  # method that references them to perform the actual pick action.
+  # When inference is locked or unlocked this method is called to update the
+  # InputPoint.
+  #
+  # @param view [Sketchup::View]
+  def update_ip(view)
+    # REVIEW: Better to just agree on a variable name for the active InputPoint
+    # bewteen tool class and mixin and not have as an advanced API between?
+    raise NotImplementedError "Override this method in class using mixin."
   end
 
   # Get reference to currently active InputPoint.

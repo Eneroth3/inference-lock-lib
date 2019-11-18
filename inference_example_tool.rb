@@ -4,6 +4,8 @@ require_relative("tool_inference")
 class InferenceExampleTool
   include ToolInference
 
+  # SketchUp Tool API
+
   # @api
   # @see https://ruby.sketchup.com/Sketchup/Tool.html
   def initialize
@@ -68,7 +70,9 @@ class InferenceExampleTool
   # @api
   # @see https://ruby.sketchup.com/Sketchup/Tool.html
   def onMouseMove(_flags, x, y, view)
-    @ip.pick(view, x, y)
+    @x = x
+    @y = y
+    update_ip(view)
     view.invalidate
   end
 
@@ -82,6 +86,14 @@ class InferenceExampleTool
   # @see https://ruby.sketchup.com/Sketchup/Tool.html
   def suspend(view)
     view.invalidate
+  end
+
+  # ToolInference
+
+  # @api
+  # @see https://ruby.sketchup.com/Sketchup/Tool.html
+  def update_ip(view)
+    @ip.pick(view, @x, @y)
   end
 
   # @api
@@ -103,8 +115,6 @@ class InferenceExampleTool
     @ip_reference.clear
     view.lock_inference
   end
-
-  # TODO: Pick inputpoint anew with same X and Y when keys are pressed or let
   # go.
 end
 
