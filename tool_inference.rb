@@ -18,7 +18,7 @@ module ToolInference
 
     case key
     when CONSTRAIN_MODIFIER_KEY
-      view.lock_inference(current_ip)
+      view.lock_inference(current_ip) unless @axis_lock
     when VK_RIGHT
       lock_inference_axis([start_ip.position, view.model.axes.xaxis], view)
     when VK_LEFT
@@ -33,9 +33,8 @@ module ToolInference
   # @api
   # @see https://ruby.sketchup.com/Sketchup/Tool.html
   def onKeyUp(key, _repeat, _flags, view)
-    return unless inference_lock_enabled?
-
     return unless key == CONSTRAIN_MODIFIER_KEY
+    return unless inference_lock_enabled?
     return if @axis_lock
 
     view.lock_inference
