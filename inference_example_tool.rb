@@ -1,8 +1,8 @@
-require_relative("tool_inference")
+require_relative("inference_lock")
 
-# Example tool showing how ToolInference mixin can be used.
+# Example tool showing how InferenceLock mixin can be used.
 class InferenceExampleTool
-  include ToolInference
+  include InferenceLock
 
   # SketchUp Tool API
 
@@ -88,7 +88,7 @@ class InferenceExampleTool
     view.invalidate
   end
 
-  # ToolInference
+  # InferenceLock
 
   # @api
   # @see https://ruby.sketchup.com/Sketchup/Tool.html

@@ -3,8 +3,8 @@
 # Requires the method `input_point` to be defined and return whatever
 # input_point is currently  relevant for the tool.
 #
-# If initialize, onKeyDown or onKeyUp are overridden, call super in them.
-module ToolInference
+# If initialize, onKeyDown or onKeyUp are defined in tool, call super in them.
+module InferenceLock
   # @api
   # @see https://ruby.sketchup.com/Sketchup/Tool.html
   def activate
