@@ -10,9 +10,7 @@
 #
 # `current_ip` must be implemented by the Tool class for this mixin to function.
 #
-# `start_ip` may be implemented.
-#
-# `inference_lock_enabled?` may be implemented.
+# `start_ip` may be implemented for finer control.
 module InferenceLock
   # @api
   # @see https://ruby.sketchup.com/Sketchup/Tool.html
@@ -25,17 +23,16 @@ module InferenceLock
   # @api
   # @see https://ruby.sketchup.com/Sketchup/Tool.html
   def onKeyDown(key, _repeat, _flags, view)
-    return unless inference_lock_enabled?
-
+    axes = view.model.axes
     case key
     when CONSTRAIN_MODIFIER_KEY
-      view.lock_inference(current_ip) unless @axis_lock
+      view.lock_inference(current_ip) if current_ip && !@axis_lock
     when VK_RIGHT
-      lock_inference_axis([start_ip.position, view.model.axes.xaxis], view)
+      lock_inference_axis([start_ip.position, axes.xaxis], view) if start_ip
     when VK_LEFT
-      lock_inference_axis([start_ip.position, view.model.axes.yaxis], view)
+      lock_inference_axis([start_ip.position, axes.yaxis], view) if start_ip
     when VK_UP
-      lock_inference_axis([start_ip.position, view.model.axes.zaxis], view)
+      lock_inference_axis([start_ip.position, axes.zaxis], view) if start_ip
     end
     onMouseMove(0, @mouse_x, @mouse_y, view)
     view.invalidate
@@ -45,9 +42,9 @@ module InferenceLock
   # @see https://ruby.sketchup.com/Sketchup/Tool.html
   def onKeyUp(key, _repeat, _flags, view)
     return unless key == CONSTRAIN_MODIFIER_KEY
-    return unless inference_lock_enabled?
     return if @axis_lock
 
+    # Unlock inference.
     view.lock_inference
     onMouseMove(0, @mouse_x, @mouse_y, view)
     view.invalidate
@@ -62,26 +59,14 @@ module InferenceLock
     @mouse_y = y
   end
 
-  # Determine whether inference locking should be enabled.
-  # In certain tool states you may not want to allow inference locking.
-  #
-  # This method MAY be overridden with a method in your tool class.
-  #
-  # @return [Boolean] Defaults to `true`.
-  def inference_lock_enabled?
-    # TODO: Separate look to active and look to start.
-    # Native line tool no longer has axis inference until after the
-    # starting point is set, since SketchUp 2017 or so.
-    true
-  end
-
   # Get reference to currently active InputPoint
-  # the one picking a position onMouseMove).
+  # (the one picking a position onMouseMove).
   # Used for constraint (Shift) lock.
   #
   # This method MUST be overridden with a method in your tool class.
   #
-  # @return [Sketchup::InputPoint]
+  # @return [Sketchup::InputPoint, nil]
+  #   nil denotes constraint lock isn't currently available.
   def current_ip
     raise NotImplementedError "Override this method in class using mixin."
   end
@@ -91,7 +76,10 @@ module InferenceLock
   #
   # This method MAY be overridden with a method in your tool class.
   #
-  # @return [Sketchup::InputPoint] Defaults to `current_ip`.
+  # @return [Sketchup::InputPoint, nil] Defaults to `current_ip`.
+  #   nil denotes axis lock isn't currently available.
+  #   For instance, in native Move tool axis lock isn't available until the
+  #   first point is selected.
   def start_ip
     current_ip
   end
