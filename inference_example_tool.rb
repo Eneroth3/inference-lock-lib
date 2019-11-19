@@ -72,7 +72,7 @@ class InferenceExampleTool
   def onMouseMove(_flags, x, y, view)
     super
 
-    @ip.pick(view, x, y)
+    @ip.pick(view, x, y, @ip_reference)
     view.invalidate
   end
 
