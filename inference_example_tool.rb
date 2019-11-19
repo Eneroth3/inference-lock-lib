@@ -99,7 +99,7 @@ class InferenceExampleTool
   # @api
   # @see `ToolInference`
   def start_ip
-    @ip_reference if @ip_reference.valid?
+    @ip_reference
   end
 
   private
