@@ -1,14 +1,25 @@
 # Mixin for inference lock in tools.
 #
-# Requires the method `input_point` to be defined and return whatever
-# input_point is currently  relevant for the tool.
+# If any of the following Tool API methods are defined in the Tool class,
+# they must call `super` for this mixin to function:
+# * `activate`
+# * `onKeyDown`
+# * `onKeyUp`
+# * `onKeyUp`
+# * `onMouseMove`
 #
-# If initialize, onKeyDown or onKeyUp are defined in tool, call super in them.
+# `current_ip` must be implemented by the Tool class for this mixin to function.
+#
+# `start_ip` may be implemented.
+#
+# `inference_lock_enabled?` may be implemented.
 module InferenceLock
   # @api
   # @see https://ruby.sketchup.com/Sketchup/Tool.html
   def activate
     @axis_lock = nil
+    @mouse_x = nil
+    @mouse_y = nil
   end
 
   # @api
@@ -26,7 +37,7 @@ module InferenceLock
     when VK_UP
       lock_inference_axis([start_ip.position, view.model.axes.zaxis], view)
     end
-    update_ip(view)
+    onMouseMove(0, @mouse_x, @mouse_y, view)
     view.invalidate
   end
 
@@ -38,8 +49,17 @@ module InferenceLock
     return if @axis_lock
 
     view.lock_inference
-    update_ip(view)
+    onMouseMove(0, @mouse_x, @mouse_y, view)
     view.invalidate
+  end
+
+  # @api
+  # @see https://ruby.sketchup.com/Sketchup/Tool.html
+  def onMouseMove(_flags, x, y, _view)
+    # Memorize mouse positions to emulate a mouse move when inference is locked
+    # or unlocked.
+    @mouse_x = x
+    @mouse_y = y
   end
 
   # Determine whether inference locking should be enabled.
@@ -55,22 +75,9 @@ module InferenceLock
     true
   end
 
-  # Pick InputPoint.
-  #
-  # This method MUST be overridden with a method in your tool class.
-  # Typically onMouseMove stores the screen x and y coordinates and calls this
-  # method that references them to perform the actual pick action.
-  # When inference is locked or unlocked this method is called to update the
-  # InputPoint.
-  #
-  # @param view [Sketchup::View]
-  def update_ip(view)
-    # REVIEW: Better to just agree on a variable name for the active InputPoint
-    # bewteen tool class and mixin and not have as an advanced API between?
-    raise NotImplementedError "Override this method in class using mixin."
-  end
-
-  # Get reference to currently active InputPoint.
+  # Get reference to currently active InputPoint
+  # the one picking a position onMouseMove).
+  # Used for constraint (Shift) lock.
   #
   # This method MUST be overridden with a method in your tool class.
   #
@@ -80,6 +87,7 @@ module InferenceLock
   end
 
   # Get reference to currently InputPoint of operation start.
+  # Used for axis lock.
   #
   # This method MAY be overridden with a method in your tool class.
   #

@@ -70,9 +70,9 @@ class InferenceExampleTool
   # @api
   # @see https://ruby.sketchup.com/Sketchup/Tool.html
   def onMouseMove(_flags, x, y, view)
-    @x = x
-    @y = y
-    update_ip(view)
+    super
+
+    @ip.pick(view, x, y)
     view.invalidate
   end
 
@@ -89,12 +89,6 @@ class InferenceExampleTool
   end
 
   # InferenceLock
-
-  # @api
-  # @see https://ruby.sketchup.com/Sketchup/Tool.html
-  def update_ip(view)
-    @ip.pick(view, @x, @y)
-  end
 
   # @api
   # @see `ToolInference`
@@ -115,7 +109,6 @@ class InferenceExampleTool
     @ip_reference.clear
     view.lock_inference
   end
-  # go.
 end
 
 Sketchup.active_model.select_tool(InferenceExampleTool.new)
