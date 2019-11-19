@@ -2,6 +2,7 @@
 #
 # If any of the following Tool API methods are defined in the Tool class,
 # they must call `super` for this mixin to function:
+#
 # * `activate`
 # * `onKeyDown`
 # * `onKeyUp`
@@ -61,9 +62,10 @@ module InferenceLock
   #
   # This method MUST be overridden with a method in your tool class.
   #
+  # `nil` or `#valid? == false` denotes constraint lock isn't currently
+  # available.
+  #
   # @return [Sketchup::InputPoint, nil]
-  #   `nil` or `#valid? == false` denotes constraint lock isn't currently
-  #   available.
   def current_ip
     raise NotImplementedError "Override this method in class using mixin."
   end
@@ -72,10 +74,11 @@ module InferenceLock
   #
   # This method MAY be overridden with a method in your tool class.
   #
+  # `nil` or `#valid? == false` denotes axis lock isn't currently available.
+  # For instance, in native Move tool axis lock isn't available until the
+  # first point is selected.
+  #
   # @return [Sketchup::InputPoint, nil] Defaults to `current_ip`.
-  #   `nil` or `#valid? == false` denotes axis lock isn't currently available.
-  #   For instance, in native Move tool axis lock isn't available until the
-  #   first point is selected.
   def start_ip
     current_ip
   end
@@ -102,7 +105,6 @@ module InferenceLock
     return unless start_ip.valid?
 
     case key
-    when CONSTRAIN_MODIFIER_KEY
     when VK_RIGHT
       lock_inference_axis([start_ip.position, view.model.axes.xaxis], view)
     when VK_LEFT

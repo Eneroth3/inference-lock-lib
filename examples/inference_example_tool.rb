@@ -1,4 +1,4 @@
-require_relative("inference_lock")
+require_relative("../lib/inference_lock")
 
 # Example tool showing how InferenceLock mixin can be used.
 class InferenceExampleTool
