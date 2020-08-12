@@ -16,6 +16,8 @@ module InferenceLock
   # @api
   # @see https://ruby.sketchup.com/Sketchup/Tool.html
   def activate
+    super if defined?(super)
+
     @axis_lock = nil
     @mouse_x = nil
     @mouse_y = nil
@@ -24,6 +26,8 @@ module InferenceLock
   # @api
   # @see https://ruby.sketchup.com/Sketchup/Tool.html
   def onKeyDown(key, _repeat, _flags, view)
+    super if defined?(super)
+
     if key == CONSTRAIN_MODIFIER_KEY
       try_lock_constraint(view)
     else
@@ -38,6 +42,8 @@ module InferenceLock
   # @api
   # @see https://ruby.sketchup.com/Sketchup/Tool.html
   def onKeyUp(key, _repeat, _flags, view)
+    super if defined?(super)
+
     return unless key == CONSTRAIN_MODIFIER_KEY
     return if @axis_lock
 
@@ -51,6 +57,8 @@ module InferenceLock
   # @api
   # @see https://ruby.sketchup.com/Sketchup/Tool.html
   def onMouseMove(_flags, x, y, _view)
+    super if defined?(super)
+
     # Memorize mouse positions to emulate a mouse move when inference is locked
     # or unlocked.
     @mouse_x = x
